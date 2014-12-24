@@ -1,5 +1,7 @@
 var express = require('express');
 var app = express();
+
+var Mailgun = require('mailgun').Mailgun;
 var mg = new Mailgun('key-03defc8cd74c81ecce7f7f3552de863c');
 
 
