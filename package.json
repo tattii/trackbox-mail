@@ -9,7 +9,7 @@
   "dependencies": {
     "express": "~4.9.x",
     "mailgun": "^0.5.0",
-    "pg": "4.x"
+    "pg": "^4.1.1"
   },
   "engines": {
     "node": "0.10.x"

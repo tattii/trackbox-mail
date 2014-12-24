@@ -1,6 +1,6 @@
 var express = require('express');
 var app = express();
-
+var pg = require('pg');
 var Mailgun = require('mailgun').Mailgun;
 var mg = new Mailgun('key-03defc8cd74c81ecce7f7f3552de863c');
 
@@ -14,10 +14,12 @@ app.get('/', function(request, response) {
 
 
 app.get('/post', function(req, res) {
-  res.send("");
   console.log(req.param("sender"));
-  console.log(req.param("attachment-x"));
+  res.send("");
 });
+
+
+
 
 mg.createRoute(".*?", "http://trackbox-mail.herokuapp.com/post");
 
