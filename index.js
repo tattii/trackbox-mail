@@ -16,6 +16,8 @@ app.get('/', function(request, response) {
 app.get('/post', function(req, res) {
   var data = req.param();
   
+  console.log("post");
+
   pg.connect(process.env.DATABASE_URL, function(err, client, done) {
 			client.query('INSERT INTO test (id, data) VALUES ($1, $2)', ["test0001", data], function(err, result) {
 				done();
