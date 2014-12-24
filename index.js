@@ -15,10 +15,12 @@ app.get('/', function(request, response) {
 
 app.get('/post', function(req, res) {
 
-	sendText(
+
+	mg.sendText(
 		"trackbox.link@app32823870.mailgun.org",
-		req.param("from"),
-		"test"
+		"yuta.tatti@gmail.com",
+		'This is the subject',
+		'This is the text',
 	);
 
 	res.send("");
