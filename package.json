@@ -8,7 +8,8 @@
   },
   "dependencies": {
     "express": "~4.9.x",
-	"pg": "4.x"
+    "mailgun": "^0.5.0",
+    "pg": "4.x"
   },
   "engines": {
     "node": "0.10.x"
