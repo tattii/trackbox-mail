@@ -14,7 +14,20 @@ app.get('/', function(request, response) {
 
 
 app.get('/post', function(req, res) {
-  console.log(req.param("sender"));
+  var data = req.param();
+  
+  pg.connect(process.env.DATABASE_URL, function(err, client, done) {
+			client.query('INSERT INTO test (id, data) VALUES ($1, $2)', ["test0001", data], function(err, result) {
+				done();
+				if (err) {
+					console.error(err);
+					res.send("Error " + err);
+				}else{
+					res.send({ id: id });
+				}
+			});
+	});
+
   res.send("");
 });
 
