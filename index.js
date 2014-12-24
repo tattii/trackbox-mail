@@ -13,7 +13,13 @@ app.get('/', function(request, response) {
 });
 
 
-mg.createRoute(".*?", "http://trackbox-mail.herokuapp.com/");
+app.get('/post', function(req, res) {
+  res.send("");
+  console.log(req.param("sender"));
+  console.log(req.param("attachment-x"));
+});
+
+mg.createRoute(".*?", "http://trackbox-mail.herokuapp.com/post");
 
 
 app.listen(app.get('port'), function() {
