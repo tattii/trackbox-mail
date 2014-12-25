@@ -40,7 +40,7 @@ app.post('/post', function(req, res) {
 				email,
 				from,
 				'This is the subject',
-				'This is the text' + JSON.stringiy(result)
+				'This is the text' + JSON.stringify(result)
 			);
 		});
 
