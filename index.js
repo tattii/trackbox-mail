@@ -8,8 +8,8 @@ var mg = new Mailgun('key-03defc8cd74c81ecce7f7f3552de863c');
 // for post params
 var bodyParser = require('body-parser');
 var multer = require('multer');
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: true }));
+//app.use(bodyParser.json());
+//app.use(bodyParser.urlencoded({ extended: true }));
 app.use(multer());
 
 
@@ -22,7 +22,7 @@ app.get('/', function(request, response) {
 
 
 app.post('/post', function(req, res) {
-	var data = req.body.data;
+	var data = req.body;
 	var sender = req.param('sender');
 	var from = req.param('from');
 	var attachments = req.param('attachments');
@@ -35,7 +35,7 @@ app.post('/post', function(req, res) {
 		'This is the text' + data
 	);
 
-	res.send(200);
+	res.status(200).end();
 });
 
 
