@@ -10,7 +10,7 @@ var bodyParser = require('body-parser');
 var multer = require('multer');
 //app.use(bodyParser.json());
 //app.use(bodyParser.urlencoded({ extended: true }));
-app.use(multer());
+app.use(multer({inMemory: true}));
 
 
 app.set('port', (process.env.PORT || 5000));
