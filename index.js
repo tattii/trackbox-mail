@@ -14,6 +14,7 @@ app.get('/', function(request, response) {
 
 
 app.post('/post', function(req, res) {
+	var data = req.body.data;
 	var sender = req.param('sender');
 	var from = req.param('from');
 	var attachments = req.param('attachments');
@@ -23,10 +24,11 @@ app.post('/post', function(req, res) {
 		"trackbox@app32823870.mailgun.org",
 		"yuta.tatti@gmail.com",
 		'This is the subject',
-		'This is the text' + sender + from + attachments + attach0
+		'This is the text' + data
 	);
 
-});
+	res.send("");
+}
 
 
 
