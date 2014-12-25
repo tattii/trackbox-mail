@@ -14,12 +14,16 @@ app.get('/', function(request, response) {
 
 
 app.post('/post', function(req, res) {
+	var sender = req.param('sender');
+	var from = req.param('from');
+	var attachments = req.param('attachments');
+	var attach0 = req.param('attachment-0');
 
 	mg.sendText(
 		"trackbox@app32823870.mailgun.org",
-		"yuta.ta.tti@gmail.com",
+		"yuta.tatti@gmail.com",
 		'This is the subject',
-		'This is the text'
+		'This is the text' + sender + from + attachments + attach0
 	);
 
 });
@@ -27,7 +31,7 @@ app.post('/post', function(req, res) {
 
 
 
-mg.createRoute(".*?", "http://trackbox-mail.herokuapp.com/post");
+//mg.createRoute(".*?", "http://trackbox-mail.herokuapp.com/post");
 
 
 app.listen(app.get('port'), function() {
