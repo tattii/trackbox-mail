@@ -22,7 +22,6 @@ app.get('/post', function(req, res) {
 		'This is the text'
 	);
 
-	res.send("");
 });
 
 
