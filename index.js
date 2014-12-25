@@ -16,7 +16,7 @@ app.get('/', function(request, response) {
 app.get('/post', function(req, res) {
 
 	mg.sendText(
-		"yuta.tatti@gmail.com",
+		"trackbox@app32823870.mailgun.org",
 		"yuta.ta.tti@gmail.com",
 		'This is the subject',
 		'This is the text'
