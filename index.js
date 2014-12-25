@@ -13,7 +13,7 @@ app.get('/', function(request, response) {
 });
 
 
-app.get('/post', function(req, res) {
+app.post('/post', function(req, res) {
 
 	mg.sendText(
 		"trackbox@app32823870.mailgun.org",
