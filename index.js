@@ -28,7 +28,7 @@ app.post('/post', function(req, res) {
 	);
 
 	res.send("");
-}
+});
 
 
 
