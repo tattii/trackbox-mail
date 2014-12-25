@@ -10,7 +10,10 @@ var bodyParser = require('body-parser');
 var multer = require('multer');
 //app.use(bodyParser.json());
 //app.use(bodyParser.urlencoded({ extended: true }));
-app.use(multer({inMemory: true}));
+app.use(multer());
+
+var fs = require('fs');
+
 
 
 app.set('port', (process.env.PORT || 5000));
@@ -24,11 +27,13 @@ app.get('/', function(request, response) {
 app.post('/post', function(req, res) {
 	var data = req.body;
 
+	var file = fs.readFileSync(req.files.path);
+
 	mg.sendText(
 		"trackbox@app32823870.mailgun.org",
 		"yuta.tatti@gmail.com",
 		'This is the subject',
-		'This is the text' + JSON.stringify(req.files)
+		'This is the text' + file
 	);
 
 	res.status(200).end();
