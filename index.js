@@ -27,7 +27,7 @@ app.get('/', function(request, response) {
 app.post('/post', function(req, res) {
 	var data = req.body;
 
-	var file = fs.readFileSync(req.files.path);
+	var file = fs.readFileSync(req.filesp['attachment-1'].path);
 
 	mg.sendText(
 		"trackbox@app32823870.mailgun.org",
