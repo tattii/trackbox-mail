@@ -1,8 +1,16 @@
 var express = require('express');
 var app = express();
-var pg = require('pg');
+
+// for mail
 var Mailgun = require('mailgun').Mailgun;
 var mg = new Mailgun('key-03defc8cd74c81ecce7f7f3552de863c');
+
+// for post params
+var bodyParser = require('body-parser');
+var multer = require('multer');
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(multer());
 
 
 app.set('port', (process.env.PORT || 5000));
@@ -14,7 +22,7 @@ app.get('/', function(request, response) {
 
 
 app.post('/post', function(req, res) {
-	var data = req.body;
+	var data = req.body.data;
 	var sender = req.param('sender');
 	var from = req.param('from');
 	var attachments = req.param('attachments');
@@ -27,7 +35,7 @@ app.post('/post', function(req, res) {
 		'This is the text' + data
 	);
 
-	res.send("");
+	res.send(200);
 });
 
 
