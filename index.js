@@ -14,7 +14,7 @@ app.get('/', function(request, response) {
 
 
 app.post('/post', function(req, res) {
-	var data = req.body.data;
+	var data = req.body;
 	var sender = req.param('sender');
 	var from = req.param('from');
 	var attachments = req.param('attachments');
