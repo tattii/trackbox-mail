@@ -28,7 +28,7 @@ app.post('/post', function(req, res) {
 		"trackbox@app32823870.mailgun.org",
 		"yuta.tatti@gmail.com",
 		'This is the subject',
-		'This is the text' + req.files
+		'This is the text' + JSON.stringify(req.files)
 	);
 
 	res.status(200).end();
