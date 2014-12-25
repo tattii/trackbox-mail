@@ -12,7 +12,7 @@ app.use(multer());
 
 // for parse track file
 var fs = require('fs');
-var parseString = require('xml2js').parseString;/app.use(bodyParser.json());
+var parseString = require('xml2js').parseString;
 
 var email = "trackbox0@gmail.com";
 
