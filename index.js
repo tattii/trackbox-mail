@@ -23,16 +23,12 @@ app.get('/', function(request, response) {
 
 app.post('/post', function(req, res) {
 	var data = req.body;
-	var sender = req.param('sender');
-	var from = req.param('from');
-	var attachments = req.param('attachments');
-	var attach0 = req.param('attachment-0');
 
 	mg.sendText(
 		"trackbox@app32823870.mailgun.org",
 		"yuta.tatti@gmail.com",
 		'This is the subject',
-		'This is the text' + JSON.stringify(data)
+		'This is the text' + data['attachment-count'] + data['attachment-0']
 	);
 
 	res.status(200).end();
