@@ -34,13 +34,12 @@ app.post('/post', function(req, res) {
 		var xml = fs.readFileSync(req.files['attachment-1'].path);
 
 		parseString(xml, function (err, result) {
-
-
+		
 			mg.sendText(
 				email,
 				from,
 				'This is the subject',
-				'This is the text' + JSON.stringify(result)
+				'This is the text' + JSON.stringify( parseGPX(result) )
 			);
 		});
 
@@ -70,30 +69,25 @@ app.listen(app.get('port'), function() {
 
 
 function parseGPX(gpx){
-	var track = [];
+	if ( gpx.trk.length > 0 ){
+		var track = [];
+		var trk = gpx.trk[0];
+		var name = trk.name;
+		var trkpt = trk.trkseg[0].trkpt;
 
-	if ( $(gpx).find("trkpt").length == 0 ){
-		alert("ファイルを読み込めません。");
-		return;
-
-	}else{
-
-		$(gpx).find("trkpt").each(function() {
-			var altitude = parseInt( $(this).find("ele").text() );
-			min_alt = (min_alt == undefined) ? altitude : (min_alt > altitude) ? altitude : min_alt;
-			max_alt = (max_alt == undefined) ? altitude : (max_alt < altitude) ? altitude : max_alt;
-			var time = Date.parse( $(this).find("time").text() );
-
-			track.push({
-				lat: parseFloat( $(this).attr("lat")),
-				lng: parseFloat( $(this).attr("lon") ),
-				altitude: altitude,
-				time: time
-			});
-
+		trkpt.forEach(function(point){
+			track.push([
+				parseFloat( point.$.lat ),
+				parseFloat( point.$.lng ),
+				parseInt( point.ele[0] ),
+				Date.parse( point.time[0] ) / 1000
+			]);
 		});
 
-		drawPath(min_alt, max_alt);
+		return {
+			name: name,
+			track: track
+		};
 	}
 }
 
