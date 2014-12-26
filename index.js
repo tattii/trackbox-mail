@@ -69,9 +69,9 @@ app.listen(app.get('port'), function() {
 
 
 function parseGPX(gpx){
-	if ( gpx.trk.length > 0 ){
+	if ( gpx.gpx.trk.length > 0 ){
 		var track = [];
-		var trk = gpx.trk[0];
+		var trk = gpx.gpx.trk[0];
 		var name = trk.name;
 		var trkpt = trk.trkseg[0].trkpt;
 
