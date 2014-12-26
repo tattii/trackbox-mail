@@ -78,7 +78,7 @@ function parseGPX(gpx){
 		trkpt.forEach(function(point){
 			track.push([
 				parseFloat( point.$.lat ),
-				parseFloat( point.$.lng ),
+				parseFloat( point.$.lon ),
 				parseInt( point.ele[0] ),
 				Date.parse( point.time[0] ) / 1000
 			]);
