@@ -42,9 +42,15 @@ app.post('/post', function(req, res) {
 				form: { data: JSON.stringify(parsed) }
 			}, function(error, response, body) {
 				if ( !error && response.statusCode == 200 ){
+					var id = body.id;
+					var url = "http://trackbox.herokuapp.com/track/" + id;
+
 					returnMail(
-						"TrackBox Post test",
-						JSON.stringify(body)
+						"航跡を共有しました - TrackBox",
+						'航跡を共有しました。<br>' +
+						'航跡へのリンク <a href="' + url + '">' + url + '</a>' +
+						'<br><br>' +
+						'TrackBox'
 					);
 
 				}else{
