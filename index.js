@@ -39,32 +39,40 @@ app.post('/post', function(req, res) {
 				name: title,
 				track: parseGPX(result)
 			};
-			
-			request.post({
-				uri: "http://trackbox.herokuapp.com/post",
-				json: true,
-				form: { data: JSON.stringify(track_data) }
-			}, function(error, response, body) {
-				if ( !error && response.statusCode == 200 ){
-					var id = body.id;
-					var url = "http://trackbox.herokuapp.com/track/" + id;
 
-					returnMail(
-						"航跡を共有しました - TrackBox",
-						"航跡を共有しました。\n" +
-						title + "\n" +
-						"航跡へのリンク " + url +
-						"\n\n" +
-						"by TrackBox"
-					);
+			if ( track_data.track ){
+				request.post({
+					uri: "http://trackbox.herokuapp.com/post",
+					json: true,
+					form: { data: JSON.stringify(track_data) }
+				}, function(error, response, body) {
+					if ( !error && response.statusCode == 200 ){
+						var id = body.id;
+						var url = "http://trackbox.herokuapp.com/track/" + id;
 
-				}else{
-					returnMail(
-						"TrackBox error",
-						"error: cannot post to trackbox " + response.statusCode
-					);
-				}
-			});
+						returnMail(
+							"航跡を共有しました - TrackBox",
+							"航跡を共有しました。\n" +
+							title + "\n" +
+							"航跡へのリンク " + url +
+							"\n\n" +
+							"by TrackBox"
+						);
+
+					}else{
+						returnMail(
+							"TrackBox error",
+							"error: cannot post to trackbox " + response.statusCode
+						);
+					}
+				});
+
+			}else{
+				returnMail(
+					"TrackBox error",
+					"error: cannot parse gpx file"
+				);
+			}
 
 		});
 
