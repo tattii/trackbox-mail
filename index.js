@@ -39,7 +39,7 @@ app.post('/post', function(req, res) {
 			request.post({
 				uri: "http://trackbox.herokuapp.com/post",
 				json: true,
-				form: parsed
+				form: { data: parsed }
 			}, function(error, response, body) {
 				if ( !error && response.statusCode == 200 ){
 					returnMail(
