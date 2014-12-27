@@ -29,17 +29,21 @@ app.get('/', function(request, response) {
 app.post('/post', function(req, res) {
 	var data = req.body;
 	var from = data.from;
+	var title = data.subject;
 
 	if ( data['attachment-count'] > 0 ){
 		var xml = fs.readFileSync(req.files['attachment-1'].path);
 
 		parseString(xml, function (err, result) {
-			var parsed = parseGPX(result);
+			var track_data = {
+				name: title,
+				track: parseGPX(result)
+			};
 			
 			request.post({
 				uri: "http://trackbox.herokuapp.com/post",
 				json: true,
-				form: { data: JSON.stringify(parsed) }
+				form: { data: JSON.stringify(track_data) }
 			}, function(error, response, body) {
 				if ( !error && response.statusCode == 200 ){
 					var id = body.id;
@@ -47,10 +51,10 @@ app.post('/post', function(req, res) {
 
 					returnMail(
 						"航跡を共有しました - TrackBox",
-						'航跡を共有しました。<br>' +
-						'航跡へのリンク <a href="' + url + '">' + url + '</a>' +
-						'<br><br>' +
-						'TrackBox'
+						"航跡を共有しました。\n" +
+						title + "\n" +
+						"航跡へのリンク " + url + "\n\n";
+						"by TrackBox"
 					);
 
 				}else{
@@ -100,7 +104,6 @@ function parseGPX(gpx){
 	if ( gpx.gpx.trk.length > 0 ){
 		var track = [];
 		var trk = gpx.gpx.trk[0];
-		var name = trk.name;
 		var trkpt = trk.trkseg[0].trkpt;
 
 		trkpt.forEach(function(point){
@@ -112,10 +115,7 @@ function parseGPX(gpx){
 			]);
 		});
 
-		return {
-			name: name,
-			track: track
-		};
+		return track;
 	}
 }
 
