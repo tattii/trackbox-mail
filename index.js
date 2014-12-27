@@ -53,7 +53,8 @@ app.post('/post', function(req, res) {
 						"航跡を共有しました - TrackBox",
 						"航跡を共有しました。\n" +
 						title + "\n" +
-						"航跡へのリンク " + url + "\n\n";
+						"航跡へのリンク " + url +
+						"\n\n" +
 						"by TrackBox"
 					);
 
