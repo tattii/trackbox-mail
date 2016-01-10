@@ -142,6 +142,9 @@ function parseGPX(filename, track){
 function parseKMZ(filename, track){
 	fs.readFile(filename, 'utf8', function(err, data){
 		if (err) throw err;
+
+console.log(data);
+
 		// decode base64
 		var decoded = new Buffer(data, 'base64');
 		fs.writeFile(filename + '.decoded', decoded, function(err){
