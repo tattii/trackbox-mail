@@ -34,7 +34,7 @@ app.post('/post', function(req, res) {
 	var data = req.body;
 	var from = data.from;
 	var title = data.subject;
-	var trackData;
+	var trackData = [];
 
 	try {
 		// with attachment file
@@ -44,10 +44,10 @@ app.post('/post', function(req, res) {
 			var filetype = filename.match(/\w+$/)[0];
 
 			if (filetype == 'gpx'){
-				trackData = parseGPX(filename);
+				parseGPX(filename, trackData);
 
 			}else if (filetype == 'kmz'){
-				trackData = parseKMZ(filename);
+				parseKMZ(filename, trackData);
 
 			}else{
 				throw new Error(filetype + ' file is not supprted');
@@ -57,7 +57,7 @@ app.post('/post', function(req, res) {
 console.log(trackData);
 
 		// post to trackbox
-		if (trackData){
+		if (trackData.length > 0){
 			var track = {
 				name: title,
 				track: trackData
@@ -118,15 +118,13 @@ app.listen(app.get('port'), function() {
 
 
 
-function parseGPX(filename){
+function parseGPX(filename, track){
 	var xml = fs.readFileSync(filename);
 	parseString(xml, function (err, result) {
 		if (err) throw err;
 		if (result.gpx.trk.length > 0){
-			var track = [];
 			var trk = result.gpx.trk[0];
 			var trkpt = trk.trkseg[0].trkpt;
-console.log(trk);
 			trkpt.forEach(function(point){
 				track.push([
 					parseFloat( point.$.lat ),
@@ -135,13 +133,11 @@ console.log(trk);
 					Date.parse( point.time[0] ) / 1000
 				]);
 			});
-
-			return track;
 		}
 	});
 }
 
-function parseKMZ(filename){
+function parseKMZ(filename, track){
 	fs.readFile(filename, 'utf8', function(err, data){
 		if (err) throw err;
 		// decode base64
@@ -152,12 +148,13 @@ function parseKMZ(filename){
 			// unzip kmz -> kml
 			fs.createReadStream(filename + '.decoded').pipe(unzip.Extract({ path: filename + '.unziped' }));
 
+			console.log(fs.readdirSync('/tmp'));
+
 			// parse kml
-			var kml = jsdom(fs.readFileSync(fileName + ".unziped/doc.kml", "utf8"));
+			var kml = jsdom(fs.readFileSync(filename + ".unziped/doc.kml", "utf8"));
 			var converted = tj.kml(kml);
 
 			// trackbox data
-			var track = [];
 			var coords = converted.features[0].geometry.coordinates;
 			var times = converted.features[0].properties.coordTimes;
 			
@@ -165,8 +162,6 @@ function parseKMZ(filename){
 				coords[i].push(Date.parse(times[i]) / 1000);
 				track.push(coords[i]);
 			}
-
-			return track;
 		});
 	});
 }
