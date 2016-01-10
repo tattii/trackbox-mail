@@ -20,7 +20,21 @@ drive.files.get({
 	fs.createReadStream(fileName).pipe(unzip.Extract({ path: fileName + ".kml" }));
 	var kml = jsdom(fs.readFileSync(fileName + ".kml/doc.kml", "utf8"));
 	var converted = tj.kml(kml);
-	console.log(JSON.stringify(converted, null, "  "));
+	//console.log(JSON.stringify(converted, null, "  "));
+	
+	var coords = converted.features[0].geometry.coordinates;
+	var times = converted.features[0].properties.coordTimes;
+	
+	var track = [];
+
+	for(var i = 0; i < coords.length; i++){
+		coords[i].push(Date.parse(times[i]) / 1000);
+		track.push(coords[i]);
+	}
+
+
+	console.log(JSON.stringify(track, null, "  "));
+
 })
 .on('error', function(err) {
 	console.log('Error during download', err);
