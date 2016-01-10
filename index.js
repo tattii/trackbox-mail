@@ -16,6 +16,11 @@ app.use(multer());
 var fs = require('fs');
 var parseString = require('xml2js').parseString;
 
+// for kmz
+var unzip = require('unzip');
+var tj = require('togeojson');
+var jsdom = require('jsdom').jsdom;
+
 app.set('port', (process.env.PORT || 5000));
 app.use(express.static(__dirname + '/public'));
 
@@ -29,25 +34,27 @@ app.post('/post', function(req, res) {
 	var data = req.body;
 	var from = data.from;
 	var title = data.subject;
-	var trackData = [];
+	var trackData;
 
 	try {
 		// with attachment file
 		if ( data['attachment-count'] > 0 ){
 			var filename = req.files['attachment-1'].path;
 			console.log(filename);  // DEBUG
-
 			var filetype = filename.match(/\w+$/)[0];
 
 			if (filetype == 'gpx'){
 				trackData = parseGPX(filename);
 
 			}else if (filetype == 'kmz'){
+				trackData = parseKMZ(filename);
 
 			}else{
 				throw new Error(filetype + ' file is not supprted');
 			}
 		}
+
+console.log(trackData);
 
 		// post to trackbox
 		if (trackData){
@@ -58,7 +65,7 @@ app.post('/post', function(req, res) {
 			request.post({
 				uri: 'http://trackbox.herokuapp.com/post',
 				json: true,
-				form: { data: JSON.stringify(track_data) }
+				form: { data: JSON.stringify(track) }
 			}, function(error, response, body) {
 				if ( !error && response.statusCode == 200 ){
 					var id = body.id;
@@ -119,7 +126,7 @@ function parseGPX(filename){
 			var track = [];
 			var trk = result.gpx.trk[0];
 			var trkpt = trk.trkseg[0].trkpt;
-
+console.log(trk);
 			trkpt.forEach(function(point){
 				track.push([
 					parseFloat( point.$.lat ),
@@ -131,6 +138,36 @@ function parseGPX(filename){
 
 			return track;
 		}
+	});
+}
+
+function parseKMZ(filename){
+	fs.readFile(filename, 'utf8', function(err, data){
+		if (err) throw err;
+		// decode base64
+		var decoded = new Buffer(data, 'base64');
+		fs.writeFile(filename + '.decoded', decoded, function(err){
+			if (err) throw err;
+
+			// unzip kmz -> kml
+			fs.createReadStream(filename + '.decoded').pipe(unzip.Extract({ path: filename + '.unziped' }));
+
+			// parse kml
+			var kml = jsdom(fs.readFileSync(fileName + ".unziped/doc.kml", "utf8"));
+			var converted = tj.kml(kml);
+
+			// trackbox data
+			var track = [];
+			var coords = converted.features[0].geometry.coordinates;
+			var times = converted.features[0].properties.coordTimes;
+			
+			for(var i = 0; i < coords.length; i++){
+				coords[i].push(Date.parse(times[i]) / 1000);
+				track.push(coords[i]);
+			}
+
+			return track;
+		});
 	});
 }
 
