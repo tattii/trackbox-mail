@@ -36,6 +36,8 @@ app.post('/post', function(req, res) {
 	var title = data.subject;
 	var trackData = [];
 
+console.log(JSON.stringify(data, null, '  '));
+
 	try {
 		// with attachment file
 		if ( data['attachment-count'] > 0 ){
