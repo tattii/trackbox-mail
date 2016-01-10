@@ -29,58 +29,63 @@ app.post('/post', function(req, res) {
 	var data = req.body;
 	var from = data.from;
 	var title = data.subject;
+	var trackData = [];
 
-	if ( data['attachment-count'] > 0 ){
-		var xml = fs.readFileSync(req.files['attachment-1'].path);
-		console.log(req.files['attachment-1'].path);
+	try {
+		// with attachment file
+		if ( data['attachment-count'] > 0 ){
+			var filename = req.files['attachment-1'].path;
+			console.log(filename);  // DEBUG
 
-		parseString(xml, function (err, result) {
-			var track_data = {
-				name: title,
-				track: parseGPX(result)
-			};
+			var filetype = filename.match(/\w+$/)[0];
 
-			if ( track_data.track ){
-				request.post({
-					uri: 'http://trackbox.herokuapp.com/post',
-					json: true,
-					form: { data: JSON.stringify(track_data) }
-				}, function(error, response, body) {
-					if ( !error && response.statusCode == 200 ){
-						var id = body.id;
-						var url = 'http://trackbox.herokuapp.com/track/' + id;
+			if (filetype == 'gpx'){
+				trackData = parseGPX(filename);
 
-						returnMail(
-							'航跡を共有しました - TrackBox',
-							'航跡を共有しました。\n\n' +
-							'「' + title + '」' + '\n' +
-							'航跡へのリンク ' + url +
-							'\n\n' +
-							'by TrackBox'
-						);
-
-					}else{
-						returnMail(
-							'TrackBox error',
-							'error: cannot post to trackbox ' + response.statusCode
-						);
-					}
-				});
+			}else if (filetype == 'kmz'){
 
 			}else{
-				returnMail(
-					'TrackBox error',
-					'error: cannot parse gpx file'
-				);
+				throw new Error(filetype + ' file is not supprted');
 			}
+		}
 
-		});
+		// post to trackbox
+		if (trackData){
+			var track = {
+				name: title,
+				track: trackData
+			};
+			request.post({
+				uri: 'http://trackbox.herokuapp.com/post',
+				json: true,
+				form: { data: JSON.stringify(track_data) }
+			}, function(error, response, body) {
+				if ( !error && response.statusCode == 200 ){
+					var id = body.id;
+					var url = 'http://trackbox.herokuapp.com/track/' + id;
 
+					returnMail(
+						'航跡を共有しました - TrackBox',
+						'航跡を共有しました。\n\n' +
+						'「' + title + '」' + '\n' +
+						'航跡へのリンク ' + url +
+						'\n\n' +
+						'by TrackBox'
+					);
 
-	}else{
+				}else{
+					throw new Error('cannot post to trackbox ' + response.statusCode);
+				}
+			});
+		}else{
+			throw new Error('track data not found');
+		}
+
+	}catch(e){
+		console.error(e);
 		returnMail(
-			'TrackBox error',
-			'error: file not found'
+			'TrackBox Error',
+			'Error! ' + e.message
 		);
 	}
 
@@ -100,32 +105,33 @@ app.post('/post', function(req, res) {
 
 
 
-//mg.createRoute('.*?', 'http://trackbox-mail.herokuapp.com/post');
-
-
 app.listen(app.get('port'), function() {
 	console.log('Node app is running at localhost:' + app.get('port'));
 });
 
 
 
-function parseGPX(gpx){
-	if ( gpx.gpx.trk.length > 0 ){
-		var track = [];
-		var trk = gpx.gpx.trk[0];
-		var trkpt = trk.trkseg[0].trkpt;
+function parseGPX(filename){
+	var xml = fs.readFileSync(filename);
+	parseString(xml, function (err, result) {
+		if (err) throw err;
+		if (result.gpx.trk.length > 0){
+			var track = [];
+			var trk = result.gpx.trk[0];
+			var trkpt = trk.trkseg[0].trkpt;
 
-		trkpt.forEach(function(point){
-			track.push([
-				parseFloat( point.$.lat ),
-				parseFloat( point.$.lon ),
-				parseInt( point.ele[0] ),
-				Date.parse( point.time[0] ) / 1000
-			]);
-		});
+			trkpt.forEach(function(point){
+				track.push([
+					parseFloat( point.$.lat ),
+					parseFloat( point.$.lon ),
+					parseInt( point.ele[0] ),
+					Date.parse( point.time[0] ) / 1000
+				]);
+			});
 
-		return track;
-	}
+			return track;
+		}
+	});
 }
 
 
