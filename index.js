@@ -36,6 +36,7 @@ app.post('/post', function(req, res) {
 
 	if ( data['attachment-count'] > 0 ){
 		var xml = fs.readFileSync(req.files['attachment-1'].path);
+		console.log(req.files['attachment-1'].path);
 
 		parseString(xml, function (err, result) {
 			var track_data = {
