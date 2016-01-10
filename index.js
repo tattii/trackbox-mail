@@ -146,21 +146,22 @@ function parseKMZ(filename, track){
 			if (err) throw err;
 
 			// unzip kmz -> kml
-			fs.createReadStream(filename + '.decoded').pipe(unzip.Extract({ path: filename + '.unziped' }));
+			var unzipExtractor = unzip.Extract({ path: filename + '.unziped' });
+			unzipExtractor.on('close', parseKML);
+			fs.createReadStream(filename + '.decoded').pipe(unzipExtractor);
 
-			console.log(fs.readdirSync('/tmp'));
+			function parseKML(){
+				var kml = jsdom(fs.readFileSync(filename + ".unziped/doc.kml", "utf8"));
+				var converted = tj.kml(kml);
 
-			// parse kml
-			var kml = jsdom(fs.readFileSync(filename + ".unziped/doc.kml", "utf8"));
-			var converted = tj.kml(kml);
-
-			// trackbox data
-			var coords = converted.features[0].geometry.coordinates;
-			var times = converted.features[0].properties.coordTimes;
+				// trackbox data
+				var coords = converted.features[0].geometry.coordinates;
+				var times = converted.features[0].properties.coordTimes;
 			
-			for(var i = 0; i < coords.length; i++){
-				coords[i].push(Date.parse(times[i]) / 1000);
-				track.push(coords[i]);
+				for(var i = 0; i < coords.length; i++){
+					coords[i].push(Date.parse(times[i]) / 1000);
+					track.push(coords[i]);
+				}
 			}
 		});
 	});
