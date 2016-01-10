@@ -5,7 +5,7 @@ var request = require('request');
 // for mail
 var Mailgun = require('mailgun').Mailgun;
 var mg = new Mailgun('key-03defc8cd74c81ecce7f7f3552de863c');
-var email = "trackbox0@gmail.com";
+var email = 'trackbox0@gmail.com';
 
 // for post params
 var bodyParser = require('body-parser');
@@ -16,6 +16,9 @@ app.use(multer());
 var fs = require('fs');
 var parseString = require('xml2js').parseString;
 
+// for parse kml
+var google = require('googleapis');
+var drive = google.drive();
 
 app.set('port', (process.env.PORT || 5000));
 app.use(express.static(__dirname + '/public'));
@@ -42,35 +45,35 @@ app.post('/post', function(req, res) {
 
 			if ( track_data.track ){
 				request.post({
-					uri: "http://trackbox.herokuapp.com/post",
+					uri: 'http://trackbox.herokuapp.com/post',
 					json: true,
 					form: { data: JSON.stringify(track_data) }
 				}, function(error, response, body) {
 					if ( !error && response.statusCode == 200 ){
 						var id = body.id;
-						var url = "http://trackbox.herokuapp.com/track/" + id;
+						var url = 'http://trackbox.herokuapp.com/track/' + id;
 
 						returnMail(
-							"航跡を共有しました - TrackBox",
-							"航跡を共有しました。\n\n" +
-							"「" + title + "」" + "\n" +
-							"航跡へのリンク " + url +
-							"\n\n" +
-							"by TrackBox"
+							'航跡を共有しました - TrackBox',
+							'航跡を共有しました。\n\n' +
+							'「' + title + '」' + '\n' +
+							'航跡へのリンク ' + url +
+							'\n\n' +
+							'by TrackBox'
 						);
 
 					}else{
 						returnMail(
-							"TrackBox error",
-							"error: cannot post to trackbox " + response.statusCode
+							'TrackBox error',
+							'error: cannot post to trackbox ' + response.statusCode
 						);
 					}
 				});
 
 			}else{
 				returnMail(
-					"TrackBox error",
-					"error: cannot parse gpx file"
+					'TrackBox error',
+					'error: cannot parse gpx file'
 				);
 			}
 
@@ -79,8 +82,8 @@ app.post('/post', function(req, res) {
 
 	}else{
 		returnMail(
-			"TrackBox error",
-			"error: file not found"
+			'TrackBox error',
+			'error: file not found'
 		);
 	}
 
@@ -100,11 +103,11 @@ app.post('/post', function(req, res) {
 
 
 
-//mg.createRoute(".*?", "http://trackbox-mail.herokuapp.com/post");
+//mg.createRoute('.*?', 'http://trackbox-mail.herokuapp.com/post');
 
 
 app.listen(app.get('port'), function() {
-	console.log("Node app is running at localhost:" + app.get('port'));
+	console.log('Node app is running at localhost:' + app.get('port'));
 });
 
 
