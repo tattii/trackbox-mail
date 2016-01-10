@@ -17,7 +17,7 @@ var fs = require('fs');
 var parseString = require('xml2js').parseString;
 
 // for kmz
-var unzip = require('unzip');
+var unzip = require('unzip2');
 var tj = require('togeojson');
 var jsdom = require('jsdom').jsdom;
 
