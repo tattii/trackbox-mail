@@ -16,10 +16,6 @@ app.use(multer());
 var fs = require('fs');
 var parseString = require('xml2js').parseString;
 
-// for parse kml
-var google = require('googleapis');
-var drive = google.drive();
-
 app.set('port', (process.env.PORT || 5000));
 app.use(express.static(__dirname + '/public'));
 
