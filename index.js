@@ -49,7 +49,7 @@ console.log(JSON.stringify(data, null, '  '));
 				parseGPX(filename, trackData);
 
 			}else if (filetype == 'kmz'){
-				parseKMZ(filename, trackData);
+				var r = parseKMZ(filename, function(data){ trackData = data; });
 
 			}else{
 				throw new Error(filetype + ' file is not supprted');
@@ -58,7 +58,6 @@ console.log(JSON.stringify(data, null, '  '));
 
 console.log(trackData);
 
-		// post to trackbox
 		if (trackData.length > 0){
 			var track = {
 				name: title,
@@ -139,36 +138,31 @@ function parseGPX(filename, track){
 	});
 }
 
-function parseKMZ(filename, track){
+function parseKMZ(filename, callback){
 	fs.readFile(filename, 'utf8', function(err, data){
 		if (err) throw err;
 
-console.log(data);
+		// unzip kmz -> kml
+		var unzipExtractor = unzip.Extract({ path: filename + '.unziped' });
+		unzipExtractor.on('close', parseKML);
+		fs.createReadStream(filename).pipe(unzipExtractor);
 
-		// decode base64
-		var decoded = new Buffer(data, 'base64');
-		fs.writeFile(filename + '.decoded', decoded, function(err){
-			if (err) throw err;
+		function parseKML(){
+			var track = [];
+			var kml = jsdom(fs.readFileSync(filename + ".unziped/doc.kml", "utf8"));
+			var converted = tj.kml(kml);
 
-			// unzip kmz -> kml
-			var unzipExtractor = unzip.Extract({ path: filename + '.unziped' });
-			unzipExtractor.on('close', parseKML);
-			fs.createReadStream(filename + '.decoded').pipe(unzipExtractor);
-
-			function parseKML(){
-				var kml = jsdom(fs.readFileSync(filename + ".unziped/doc.kml", "utf8"));
-				var converted = tj.kml(kml);
-
-				// trackbox data
-				var coords = converted.features[0].geometry.coordinates;
-				var times = converted.features[0].properties.coordTimes;
-			
-				for(var i = 0; i < coords.length; i++){
-					coords[i].push(Date.parse(times[i]) / 1000);
-					track.push(coords[i]);
-				}
+			// trackbox data
+			var coords = converted.features[0].geometry.coordinates;
+			var times = converted.features[0].properties.coordTimes;
+		
+			for(var i = 0; i < coords.length; i++){
+				coords[i].push(Date.parse(times[i]) / 1000);
+				track.push(coords[i]);
 			}
-		});
+
+			return callback(track);
+		}
 	});
 }
 
