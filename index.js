@@ -38,7 +38,7 @@ app.get('/', function(request, response) {
 app.post('/post', function(req, res) {
 	var data = req.body;
 	var from = data.from;
-	var title = data.subject;
+	var title = data.subject || 'Track';
 	var trackData = [];
 
 	console.log(JSON.stringify(data, null, '  ')); // DEBUG: mail data
