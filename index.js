@@ -54,6 +54,11 @@ app.post('/post', function(req, res) {
 					postTrackbox(trackData, title, successMail);
 				});
 
+			}else if (filetype == 'kml'){
+				parseKML(filename, function(trackData){
+					postTrackbox(trackData, title, successMail);
+				});
+
 			}else{
 				throw new Error(filetype + ' file is not supprted');
 			}
