@@ -166,8 +166,12 @@ function parseKML(filename, callback){
 	var times = converted.features[0].properties.coordTimes;
 
 	for(var i = 0; i < coords.length; i++){
-		coords[i].push(Date.parse(times[i]) / 1000);
-		track.push(coords[i]);
+		track.push([
+			coords[i][1],
+			coords[i][0],
+			coords[i][2],
+			Date.parse(times[i]) / 1000
+		]);
 	}
 
 	return callback(track);
