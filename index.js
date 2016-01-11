@@ -185,19 +185,23 @@ function parseKML(filename, callback){
 	var converted = tj.kml(kml);
 
 	// trackbox data [lat, lon, alt, time]
-	var coords = converted.features[0].geometry.coordinates;
-	var times = converted.features[0].properties.coordTimes;
+	if (converted.features[0]){
+		var coords = converted.features[0].geometry.coordinates;
+		var times = converted.features[0].properties.coordTimes;
 
-	for(var i = 0; i < coords.length; i++){
-		track.push([
-			coords[i][1],
-			coords[i][0],
-			coords[i][2],
-			Date.parse(times[i]) / 1000
-		]);
+		for(var i = 0; i < coords.length; i++){
+			track.push([
+				coords[i][1],
+				coords[i][0],
+				coords[i][2],
+				Date.parse(times[i]) / 1000
+			]);
+		}
+
+		return callback(track);
+	}else{
+		throw new Error('track data not found in kml file');
 	}
-
-	return callback(track);
 }
 
 
