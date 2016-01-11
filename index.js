@@ -22,6 +22,11 @@ var unzip = require('unzip2');
 var tj = require('togeojson');
 var jsdom = require('jsdom').jsdom;
 
+// for Google Drive
+var google = require('googleapis');
+var apiKey = process.env.GOOGLE_API_KEY;
+var drive = google.drive({ version: 'v2', auth: apiKey});
+
 
 app.set('port', (process.env.PORT || 5000));
 app.use(express.static(__dirname + '/public'));
@@ -63,9 +68,17 @@ app.post('/post', function(req, res) {
 			}else{
 				throw new Error(filetype + ' file is not supprted');
 			}
+		
+		// with Google Drive Link
+		}else if ( data['body-plain'].match(/drive\.google\.com/) ){
+			var fileId = data['body-plain'].match(/drive\.google.com\/file\/d\/([^\/]+)\//)[1];
+			getGoogleDriveFile(fileId, function(trackData){
+				postTrackbox(trackData, title, successMail);
+			});
+
+
 		}else{
-			console.log(req);
-			throw new Error('!!!');
+			throw new Error('cannot find track data');
 		}
 
 	}catch(e){
@@ -185,4 +198,22 @@ function parseKML(filename, callback){
 
 	return callback(track);
 }
+
+
+function getGoogleDriveFile(fileId, callback){
+	var filename = '/tmp/' + fileId;
+	var dest = fs.createWriteStream(filename);
+	drive.files.get({
+		fileId: fileId,
+		alt: 'media'
+	})
+	.on('end', function() {
+		parseKMZ(filename, callback);
+	})
+	.on('error', function(err) {
+		throw err;
+	})
+	.pipe(dest);
+}
+
 
