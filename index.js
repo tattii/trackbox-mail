@@ -4,11 +4,12 @@ var request = require('request');
 
 // for mail
 var Mailgun = require('mailgun').Mailgun;
-var mg = new Mailgun('key-03defc8cd74c81ecce7f7f3552de863c');
+var mg = new Mailgun(process.env.MAILGUN_API_KEY);
 var email = 'trackbox0@gmail.com';
 
 // for post params
 var bodyParser = require('body-parser');
+app.use(bodyParser());
 var multer = require('multer');
 app.use(multer());
 
@@ -21,6 +22,20 @@ var unzip = require('unzip2');
 var tj = require('togeojson');
 var jsdom = require('jsdom').jsdom;
 
+// for Google Drive
+var google = require('googleapis');
+var OAuth2 = google.auth.OAuth2;
+var oauth2Client = new OAuth2(
+	process.env.GOOGLE_CLIENT_ID,
+	process.env.GOOGLECLIENT_SECRET,
+	'http://www.google.co.jp'
+);
+oauth2Client.setCredentials({
+	access_token: process.env.GOOGLE_ACCESS_TOKEN,
+	refresh_token: process.env.GOOGLE_REFRESH_TOKEN
+});
+var drive = google.drive({ version: 'v2', auth: oauth2Client});
+
 
 app.set('port', (process.env.PORT || 5000));
 app.use(express.static(__dirname + '/public'));
@@ -32,7 +47,7 @@ app.get('/', function(request, response) {
 app.post('/post', function(req, res) {
 	var data = req.body;
 	var from = data.from;
-	var title = data.subject;
+	var title = data.subject || 'Track';
 	var trackData = [];
 
 	console.log(JSON.stringify(data, null, '  ')); // DEBUG: mail data
@@ -62,6 +77,18 @@ app.post('/post', function(req, res) {
 			}else{
 				throw new Error(filetype + ' file is not supprted');
 			}
+		
+		// with Google Drive Link
+		}else if ( data['body-plain'].match(/drive\.google\.com/) ){
+			var fileId = data['body-plain'].match(/drive\.google.com\/file\/d\/([^\/]+)\//)[1];
+			console.log(fileId);  // DEBUG
+			getGoogleDriveFile(fileId, function(trackData){
+				postTrackbox(trackData, title, successMail);
+			});
+
+
+		}else{
+			throw new Error('cannot find track data');
 		}
 
 	}catch(e){
@@ -167,18 +194,43 @@ function parseKML(filename, callback){
 	var converted = tj.kml(kml);
 
 	// trackbox data [lat, lon, alt, time]
-	var coords = converted.features[0].geometry.coordinates;
-	var times = converted.features[0].properties.coordTimes;
+	for(var f = 0; f < converted.features.length; f++){
+		//console.log(JSON.stringify(converted, null, '  '));
+		if (converted.features[f].geometry.type == 'LineString'){
+			var coords = converted.features[f].geometry.coordinates;
+			var times = converted.features[f].properties.coordTimes;
 
-	for(var i = 0; i < coords.length; i++){
-		track.push([
-			coords[i][1],
-			coords[i][0],
-			coords[i][2],
-			Date.parse(times[i]) / 1000
-		]);
+			for(var i = 0; i < coords.length; i++){
+				track.push([
+					coords[i][1],
+					coords[i][0],
+					coords[i][2],
+					Date.parse(times[i]) / 1000
+				]);
+			}
+
+			return callback(track);
+		}
 	}
 
-	return callback(track);
+	throw new Error('track data not found in kml file');
 }
+
+
+function getGoogleDriveFile(fileId, callback){
+	var filename = '/tmp/' + fileId;
+	var dest = fs.createWriteStream(filename);
+	drive.files.get({
+		fileId: fileId,
+		alt: 'media'
+	})
+	.on('end', function() {
+		parseKMZ(filename, callback);
+	})
+	.on('error', function(err) {
+		throw err;
+	})
+	.pipe(dest);
+}
+
 
