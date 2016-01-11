@@ -24,8 +24,17 @@ var jsdom = require('jsdom').jsdom;
 
 // for Google Drive
 var google = require('googleapis');
-var apiKey = process.env.GOOGLE_API_KEY;
-var drive = google.drive({ version: 'v2', auth: apiKey});
+var OAuth2 = google.auth.OAuth2;
+var oauth2Client = new OAuth2(
+	process.env.GOOGLE_CLIENT_ID,
+	process.env.GOOGLECLIENT_SECRET,
+	'http://www.google.co.jp'
+);
+oauth2Client.setCredentials({
+	access_token: process.env.GOOGLE_ACCESS_TOKEN,
+	refresh_token: process.env.GOOGLE_REFRESH_TOKEN
+});
+var drive = google.drive({ version: 'v2', auth: oauth2Client});
 
 
 app.set('port', (process.env.PORT || 5000));
