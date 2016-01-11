@@ -149,7 +149,9 @@ function parseKMZ(filename, callback){
 
 		function parseKML(){
 			var track = [];
-			var kml = jsdom(fs.readFileSync(filename + ".unziped/doc.kml", "utf8"));
+			var xml = fs.readFileSync(filename + ".unziped/doc.kml", "utf8");
+console.log(xml);
+			var kml = jsdom(xml);
 			var converted = tj.kml(kml);
 
 			// trackbox data
