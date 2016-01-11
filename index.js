@@ -4,7 +4,7 @@ var request = require('request');
 
 // for mail
 var Mailgun = require('mailgun').Mailgun;
-var mg = new Mailgun('key-03defc8cd74c81ecce7f7f3552de863c');
+var mg = new Mailgun(process.env.MAILGUN_API_KEY);
 var email = 'trackbox0@gmail.com';
 
 // for post params
@@ -72,6 +72,7 @@ app.post('/post', function(req, res) {
 		// with Google Drive Link
 		}else if ( data['body-plain'].match(/drive\.google\.com/) ){
 			var fileId = data['body-plain'].match(/drive\.google.com\/file\/d\/([^\/]+)\//)[1];
+			console.log(fileId);  // DEBUG
 			getGoogleDriveFile(fileId, function(trackData){
 				postTrackbox(trackData, title, successMail);
 			});
