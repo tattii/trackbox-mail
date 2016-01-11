@@ -194,23 +194,26 @@ function parseKML(filename, callback){
 	var converted = tj.kml(kml);
 
 	// trackbox data [lat, lon, alt, time]
-	if (converted.features[0]){
-		var coords = converted.features[0].geometry.coordinates;
-		var times = converted.features[0].properties.coordTimes;
+	for(var f = 0; f < converted.features.length; f++){
+		//console.log(JSON.stringify(converted, null, '  '));
+		if (converted.features[f].geometry.type == 'LineString'){
+			var coords = converted.features[f].geometry.coordinates;
+			var times = converted.features[f].properties.coordTimes;
 
-		for(var i = 0; i < coords.length; i++){
-			track.push([
-				coords[i][1],
-				coords[i][0],
-				coords[i][2],
-				Date.parse(times[i]) / 1000
-			]);
+			for(var i = 0; i < coords.length; i++){
+				track.push([
+					coords[i][1],
+					coords[i][0],
+					coords[i][2],
+					Date.parse(times[i]) / 1000
+				]);
+			}
+
+			return callback(track);
 		}
-
-		return callback(track);
-	}else{
-		throw new Error('track data not found in kml file');
 	}
+
+	throw new Error('track data not found in kml file');
 }
 
 
