@@ -9,6 +9,7 @@ var email = 'trackbox0@gmail.com';
 
 // for post params
 var bodyParser = require('body-parser');
+app.use(bodyParser());
 var multer = require('multer');
 app.use(multer());
 
@@ -62,6 +63,9 @@ app.post('/post', function(req, res) {
 			}else{
 				throw new Error(filetype + ' file is not supprted');
 			}
+		}else{
+			console.log(req);
+			throw new Error('!!!');
 		}
 
 	}catch(e){
