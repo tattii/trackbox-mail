@@ -27,15 +27,17 @@ var google = require('googleapis');
 var OAuth2 = google.auth.OAuth2;
 var oauth2Client = new OAuth2(
 	process.env.GOOGLE_CLIENT_ID,
-	process.env.GOOGLECLIENT_SECRET,
+	process.env.GOOGLE_CLIENT_SECRET,
 	'http://www.google.co.jp'
 );
 oauth2Client.setCredentials({
 	access_token: process.env.GOOGLE_ACCESS_TOKEN,
 	refresh_token: process.env.GOOGLE_REFRESH_TOKEN
 });
+oauth2Client.refreshAccessToken(function(err, tokens){
+	console.log(tokens);
+});
 var drive = google.drive({ version: 'v2', auth: oauth2Client});
-
 
 app.set('port', (process.env.PORT || 5000));
 app.use(express.static(__dirname + '/public'));
