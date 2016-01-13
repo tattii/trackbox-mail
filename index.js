@@ -206,7 +206,7 @@ function parseKML(filename, callback){
 				track.push([
 					coords[i][1],
 					coords[i][0],
-					coords[i][2],
+					parseInt( coords[i][2] ),
 					Date.parse(times[i]) / 1000
 				]);
 			}
@@ -223,7 +223,7 @@ function parseKML(filename, callback){
 					track.push([
 						coords[i][1],
 						coords[i][0],
-						coords[i][2],
+						parseInt( coords[i][2] ),
 						Date.parse(times[i]) / 1000
 					]);
 				}
