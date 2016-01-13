@@ -210,7 +210,24 @@ function parseKML(filename, callback){
 					Date.parse(times[i]) / 1000
 				]);
 			}
+			return callback(track);
 
+		}else if (converted.features[f].geometry.type == 'GeometryCollection'){
+			var geometries = converted.features[f].geometry.geometries;
+
+			for(var g = 0; g < geometries.length; g++){
+				var coords = geometries[g].coordinates;
+				var times = converted.features[f].properties.coordTimes[g];
+
+				for(var i = 0; i < coords.length; i++){
+					track.push([
+						coords[i][1],
+						coords[i][0],
+						coords[i][2],
+						Date.parse(times[i]) / 1000
+					]);
+				}
+			}
 			return callback(track);
 		}
 	}
