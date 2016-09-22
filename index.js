@@ -156,7 +156,6 @@ function postTrackbox(trackData, title, callback){
 
 
 function parseGPX(filename, callback){
-	var track = [];
 	var xml = fs.readFileSync(filename, "utf8");
 	var kml = jsdom(xml);
 	var converted = tj.gpx(kml);
@@ -176,7 +175,6 @@ function parseKMZ(filename, callback){
 }
 
 function parseKML(filename, callback){
-	var track = [];
 	var xml = fs.readFileSync(filename, "utf8");
 	var kml = jsdom(xml);
 	var converted = tj.kml(kml);
@@ -186,6 +184,8 @@ function parseKML(filename, callback){
 
 function parseGeoJson(converted, callback){
 	// trackbox data [lat, lon, alt, time]
+	var track = [];
+
 	for(var f = 0; f < converted.features.length; f++){
 		//console.log(JSON.stringify(converted, null, '  '));
 		if (converted.features[f].geometry.type == 'LineString'){
