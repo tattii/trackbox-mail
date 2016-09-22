@@ -13,11 +13,8 @@ app.use(bodyParser());
 var multer = require('multer');
 app.use(multer());
 
-// for parse track file
+// for parsing tracks
 var fs = require('fs');
-var parseString = require('xml2js').parseString;
-
-// for kmz
 var unzip = require('unzip2');
 var tj = require('togeojson');
 var jsdom = require('jsdom').jsdom;
@@ -159,23 +156,12 @@ function postTrackbox(trackData, title, callback){
 
 
 function parseGPX(filename, callback){
-	var xml = fs.readFileSync(filename);
-	parseString(xml, function (err, result) {
-		if (err) throw err;
-		var track = [];
-		var trk = result.gpx.trk[0];
-		var trkpt = trk.trkseg[0].trkpt;
-		trkpt.forEach(function(point){
-			track.push([
-				parseFloat( point.$.lat ),
-				parseFloat( point.$.lon ),
-				parseInt( point.ele[0] ),
-				Date.parse( point.time[0] ) / 1000
-			]);
-		});
+	var track = [];
+	var xml = fs.readFileSync(filename, "utf8");
+	var kml = jsdom(xml);
+	var converted = tj.gpx(kml);
 
-		return callback(track);
-	});
+	parseGeoJson(converted, callback);
 }
 
 function parseKMZ(filename, callback){
@@ -195,6 +181,10 @@ function parseKML(filename, callback){
 	var kml = jsdom(xml);
 	var converted = tj.kml(kml);
 
+	parseGeoJson(converted, callback);
+}
+
+function parseGeoJson(converted, callback){
 	// trackbox data [lat, lon, alt, time]
 	for(var f = 0; f < converted.features.length; f++){
 		//console.log(JSON.stringify(converted, null, '  '));
@@ -229,10 +219,28 @@ function parseKML(filename, callback){
 				}
 			}
 			return callback(track);
+
+		}else if (converted.features[f].geometry.type == 'MultiLineString'){
+			var coordinates = converted.features[f].geometry.coordinates;
+
+			for(var c = 0; c < coordinates.length; c++){
+				var coords = coordinates[c];
+				var times = converted.features[f].properties.coordTimes[c];
+
+				for(var i = 0; i < coords.length; i++){
+					track.push([
+						coords[i][1],
+						coords[i][0],
+						coords[i][2],
+						Date.parse(times[i]) / 1000
+					]);
+				}
+			}
+			return callback(track);
 		}
 	}
 
-	throw new Error('track data not found in kml file');
+	throw new Error('track data not found in the file');
 }
 
 
