@@ -109,14 +109,15 @@ app.post('/post', function(req, res) {
 		);
 	}
 
-	function successMail(trackboxUrl){ 
+	function successMail(data){ 
 		returnMail(
 			'航跡を共有しました - TrackBox',
 			'航跡を共有しました。\n\n' +
 			'「' + title + '」' + '\n' +
-			'航跡へのリンク ' + trackboxUrl +
+			'公開用リンク ' + 'https://track-box.github.io/track/#' + data.id + '\n' +
+			'編集用リンク ' + 'https://track-box.github.io/track/#' + data.edit_id + '\n' +
 			'\n\n' +
-			'by TrackBox'
+			'by TrackBox v2'
 		);
 	}	
 });
@@ -136,14 +137,12 @@ function postTrackbox(trackData, title, callback){
 		};
 
 		request.post({
-			uri: 'http://trackbox.herokuapp.com/post',
+			uri: 'http://trackbox2.herokuapp.com/post',
 			json: true,
 			form: { data: JSON.stringify(track) }
 		}, function(error, response, body) {
 			if ( !error && response.statusCode == 200 ){
-				var id = body.id;
-				var url = 'http://trackbox.herokuapp.com/track/' + id;
-				return callback(url);
+				return callback(body);
 
 			}else{
 				throw new Error('cannot post to trackbox ' + response.statusCode);
