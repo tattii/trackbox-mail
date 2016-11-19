@@ -136,8 +136,6 @@ function postTrackbox(trackData, title, callback){
 			track: trackData
 		};
 
-		console.log(track);
-
 		request.post({
 			uri: 'http://trackbox2.herokuapp.com/post',
 			json: true,
