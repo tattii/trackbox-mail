@@ -123,9 +123,9 @@ app.post('/post', function(req, res) {
 		returnMail(
 			'航跡を共有しました - TrackBox',
 			'航跡を共有しました。\n\n' +
-			'「' + title + '」' + '\n' +
-			'公開用リンク ' + 'https://track-box.github.io/track/#' + data.id + '\n' +
-			'編集用リンク ' + 'https://track-box.github.io/edit/#' + data.edit_id + '\n' +
+			'「' + title + '」' + '\n\n' +
+			'公開用リンク ' + 'https://track-box.github.io/track/#' + data.id + '\n\n' +
+			'編集用リンク ' + 'https://track-box.github.io/edit/#' + data.edit_id + '\n\n' +
 			'\n\n' +
 			'by TrackBox v2'
 		);
