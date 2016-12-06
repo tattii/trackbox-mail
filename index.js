@@ -101,10 +101,10 @@ app.post('/post', function(req, res) {
 	res.status(200).end();
 
 	function returnMail(subject, message) {
-		var from_email = new helper.Email(email);
-		var to_email = new helper.Email(from);
-		var content = new helper.Content('text/plain', message);
-		var mail = new helper.Mail(from_email, subject, to_email, content);
+		var from_email = new sghelper.Email(email);
+		var to_email = new sghelper.Email(from);
+		var content = new sghelper.Content('text/plain', message);
+		var mail = new sghelper.Mail(from_email, subject, to_email, content);
 
 		var request = sg.emptyRequest({
 			method: 'POST',
