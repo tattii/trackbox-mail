@@ -3,8 +3,8 @@ var app = express();
 var request = require('request');
 
 // for mail
-var Mailgun = require('mailgun').Mailgun;
-var mg = new Mailgun(process.env.MAILGUN_API_KEY);
+var sg = require('sendgrid')(process.env.SENDGRID_API_KEY);
+var sghelper = require('sendgrid').mail;
 var email = 'trackbox0@gmail.com';
 
 // for post params
@@ -101,12 +101,22 @@ app.post('/post', function(req, res) {
 	res.status(200).end();
 
 	function returnMail(subject, message) {
-		mg.sendText(
-			email,
-			from,
-			subject,
-			message
-		);
+		var from_email = new helper.Email(email);
+		var to_email = new helper.Email(from);
+		var content = new helper.Content('text/plain', message);
+		var mail = new helper.Mail(from_email, subject, to_email, content);
+
+		var request = sg.emptyRequest({
+			method: 'POST',
+			path: '/v3/mail/send',
+			body: mail.toJSON(),
+		});
+
+		sg.API(request, function(error, response) {
+			console.log(response.statusCode);
+			console.log(response.body);
+			console.log(response.headers);
+		});
 	}
 
 	function successMail(data){ 
