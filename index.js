@@ -3,8 +3,8 @@ var app = express();
 var request = require('request');
 
 // for mail
-var Mailgun = require('mailgun').Mailgun;
-var mg = new Mailgun(process.env.MAILGUN_API_KEY);
+var sg = require('sendgrid')(process.env.SENDGRID_API_KEY);
+var sghelper = require('sendgrid').mail;
 var email = 'trackbox0@gmail.com';
 
 // for post params
@@ -101,21 +101,31 @@ app.post('/post', function(req, res) {
 	res.status(200).end();
 
 	function returnMail(subject, message) {
-		mg.sendText(
-			email,
-			from,
-			subject,
-			message
-		);
+		var from_email = new sghelper.Email(email);
+		var to_email = new sghelper.Email(from);
+		var content = new sghelper.Content('text/plain', message);
+		var mail = new sghelper.Mail(from_email, subject, to_email, content);
+
+		var request = sg.emptyRequest({
+			method: 'POST',
+			path: '/v3/mail/send',
+			body: mail.toJSON(),
+		});
+
+		sg.API(request, function(error, response) {
+			console.log(response.statusCode);
+			console.log(response.body);
+			console.log(response.headers);
+		});
 	}
 
 	function successMail(data){ 
 		returnMail(
 			'航跡を共有しました - TrackBox',
 			'航跡を共有しました。\n\n' +
-			'「' + title + '」' + '\n' +
-			'公開用リンク ' + 'https://track-box.github.io/track/#' + data.id + '\n' +
-			'編集用リンク ' + 'https://track-box.github.io/track/#' + data.edit_id + '\n' +
+			'「' + title + '」' + '\n\n' +
+			'公開用リンク ' + 'https://track-box.github.io/track/#' + data.id + '\n\n' +
+			'編集用リンク ' + 'https://track-box.github.io/edit/#' + data.edit_id + '\n\n' +
 			'\n\n' +
 			'by TrackBox v2'
 		);
